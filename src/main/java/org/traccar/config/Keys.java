@@ -1494,6 +1494,23 @@ public final class Keys {
             "");
 
     /**
+     * FIXME!!!
+     * 
+     */
+    public static final ConfigKey<Boolean> FORCE_INCLUDE_ON_ATTRIBUTES_VALUE_CHANGE_ENABLE = new BooleanConfigKey(
+            "filter.forceIncludeOnAttributesValueChange.enable",
+            List.of(KeyType.CONFIG));
+
+    /**
+     * FIXME!!!
+     * 
+     */
+    public static final ConfigKey<String> FORCE_INCLUDE_ON_ATTRIBUTES_VALUE_CHANGE = new StringConfigKey(
+            "filter.forceIncludeOnAttributesValueChange",
+            List.of(KeyType.CONFIG, KeyType.DEVICE),
+            "");
+
+    /**
      * Override device time. Possible values are 'deviceTime' and 'serverTime'
      */
     public static final ConfigKey<String> TIME_OVERRIDE = new StringConfigKey(
