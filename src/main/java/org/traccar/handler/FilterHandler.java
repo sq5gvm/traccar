@@ -57,6 +57,7 @@ public class FilterHandler extends BasePositionHandler {
     private final boolean filterRelative;
     private final long skipLimit;
     private final boolean skipAttributes;
+    private final boolean forceIncludeOnAttributesValueChange;
 
     private final CacheManager cacheManager;
     private final Storage storage;
