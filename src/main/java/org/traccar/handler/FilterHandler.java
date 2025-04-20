@@ -82,6 +82,7 @@ public class FilterHandler extends BasePositionHandler {
         filterRelative = config.getBoolean(Keys.FILTER_RELATIVE);
         skipLimit = config.getLong(Keys.FILTER_SKIP_LIMIT) * 1000;
         skipAttributes = config.getBoolean(Keys.FILTER_SKIP_ATTRIBUTES_ENABLE);
+        forceIncludeOnAttributesValueChange = config.getBoolean(Keys.FORCE_INCLUDE_ON_ATTRIBUTES_VALUE_CHANGE_ENABLE);
         this.cacheManager = cacheManager;
         this.storage = storage;
         this.statisticsManager = statisticsManager;
@@ -195,6 +196,21 @@ public class FilterHandler extends BasePositionHandler {
         return false;
     }
 
+    // de-facto include position report is any of the listed attributes changed its value
+    private boolean forceIncludeOnAttributeChange(Position position, Position last) {
+        if (forceIncludeOnAttributesValueChange) {
+            String string = AttributeUtil.lookup(cacheManager, Keys.FORCE_INCLUDE_ON_ATTRIBUTES_VALUE_CHANGE, position.getDeviceId());
+            for (String attribute : string.split("[ ,]")) {
+                if (position.hasAttribute(attribute) && last.hasAttribute(attribute)) {
+                    if (!position.getAttributes().get(attribute).equals(last.getAttributes().get(attribute))) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     protected boolean filter(Position position) {
 
         StringBuilder filterType = new StringBuilder();
@@ -266,7 +282,7 @@ public class FilterHandler extends BasePositionHandler {
             }
         }
 
-        if (!filterType.isEmpty()) {
+        if (!filterType.isEmpty() && !forceIncludeOnAttributeChange(position, preceding)) {
             LOGGER.info("Position filtered by {}filters from device: {}", filterType, device.getUniqueId());
             return true;
         }
