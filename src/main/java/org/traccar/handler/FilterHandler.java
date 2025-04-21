@@ -239,10 +239,12 @@ public class FilterHandler extends BasePositionHandler {
             filterType.append("Approximate ");
         }
 
+		boolean forceIncludeAttributeValueChanged = false;
+
         // filter out excessive data
         long deviceId = position.getDeviceId();
         if (filterDuplicate || filterStatic
-                || filterDistance > 0 || filterMaxSpeed > 0 || filterMinPeriod > 0 || filterDailyLimit > 0) {
+                || filterDistance > 0 || filterMaxSpeed > 0 || filterMinPeriod > 0 || filterDailyLimit > 0 || forceIncludeOnAttributesValueChange) {
             Position preceding;
             if (filterRelative) {
                 try {
@@ -273,6 +275,9 @@ public class FilterHandler extends BasePositionHandler {
             if (filterDailyLimit(position, preceding)) {
                 filterType.append("DailyLimit ");
             }
+			if (forceIncludeOnAttributesValueChange) {
+				forceIncludeAttributeValueChanged = forceIncludeOnAttributeChange(position, preceding);
+			}
         }
 
         Device device = cacheManager.getObject(Device.class, deviceId);
@@ -283,7 +288,13 @@ public class FilterHandler extends BasePositionHandler {
             }
         }
 
-        if (!filterType.isEmpty() && !forceIncludeOnAttributeChange(position, preceding)) {
+		// 
+		if (forceIncludeAttributeValueChanged) {
+            LOGGER.info("Forced saving of position (ignoring filters) due to change in attributes values from device: {}", device.getUniqueId());
+            return false;
+		}
+
+        if (!filterType.isEmpty()) {
             LOGGER.info("Position filtered by {}filters from device: {}", filterType, device.getUniqueId());
             return true;
         }
